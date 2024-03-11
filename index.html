@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- displays site properly based on user's device -->
+
+  <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
+  <link rel="stylesheet" href="/style.css">
+  <title>Frontend Mentor | Advice generator app</title>
+
+  <style>
+    .attribution {
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .attribution a {
+      color: hsl(228, 45%, 44%);
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <h1 class="visually-hidden">Advise generator: relevant advises for everyday life</h1>
+    <article class="adviser">
+      <h2 class="adviser-title">Advice #<span class="advice-number"></span></h2>
+      <blockquote cite="https://api.adviceslip.com/">
+        <p class="advice"></p>
+      </blockquote>
+      <button type="button" class="get-advise-btn"><span class="visually-hidden">get new advise</span></button>
+    </article>
+  </main>
+
+  <div class="attribution">
+    Challenge by <a href="https://www.frontendmentor.io?ref=challenge" target="_blank">Frontend Mentor</a>.
+    Coded by <a href="#">Evgenija Antonova</a>.
+  </div>
+</body>
+<script>
+  window.addEventListener('load', () => {
+    const adviceNumber = document.querySelector('.advice-number');
+    const adviceBody = document.querySelector('p.advice');
+    const adviceBtn = document.querySelector('.get-advise-btn');
+
+    console.log(adviceBody);
+    console.log(adviceNumber);
+  
+    const onSuccess = (advice, number) => {
+      adviceNumber.textContent = number;
+      adviceBody.textContent = advice;
+    }
+  
+    const onFail = (error) => {
+      console.log(error);
+    }
+    const getAdvice = async (onSuccess, onFail, cb) => {
+      adviceNumber.textContent = '. . .';
+      adviceBody.textContent = '. . .';
+      try {
+        const response = await fetch(
+          'https://api.adviceslip.com/advice'
+        );
+  
+        if (!response.ok) {
+          throw new Error('Не удалось получить данные');
+        }
+        const data = await response.json();
+        const advice = data['slip']['advice'];
+        const adviceID = data['slip']['id'];
+        onSuccess(advice, adviceID);
+      } catch (error) {
+        onFail(error.message);
+      }
+    };
+    getAdvice(onSuccess, onFail);
+
+    const getNewAdvice = () => {
+      getAdvice(onSuccess, onFail);
+    }
+
+    adviceBtn.addEventListener('click', getNewAdvice);
+  })
+</script>
+
+</html>
