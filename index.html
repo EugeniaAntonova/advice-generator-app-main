@@ -4,10 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- displays site properly based on user's device -->
 
   <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
-  <!-- <link rel="stylesheet" href="/style.css"> -->
   <title>Frontend Mentor | Advice generator app</title>
 
   <style>
@@ -134,10 +132,35 @@
       outline: none;
     }
 
-    .get-advise-btn:is(:hover, :focus-visible) {
-      box-shadow: 0 0 20px hsla(150, 100%, 66%, 75%);
+    @media (hover: hover) {
+      .get-advise-btn:is(:hover, :focus-visible) {
+        box-shadow: 0 0 20px hsla(150, 100%, 66%, 75%);
+      }
+
+      .get-advise-btn:disabled:is(:hover, :focus-visible) {
+        box-shadow: none;
+      }
+
+      .get-advise-btn:disabled {
+        cursor: not-allowed;
+      }
     }
 
+
+    .get-advise-btn:disabled {
+      animation: rotate 1s ease-in-out infinite;
+      transform-origin: center center;
+    }
+
+    @keyframes rotate {
+      from {
+        transform: translateY(50%) rotate(0deg);
+      }
+
+      to {
+        transform: translateY(50%) rotate(360deg);
+      }
+    }
 
     @media (min-width: 500px) {
       .adviser .advice {
@@ -196,18 +219,35 @@
     const adviceBody = document.querySelector('p.advice');
     const adviceBtn = document.querySelector('.get-advise-btn');
 
-    console.log(adviceBody);
-    console.log(adviceNumber);
+    const printAdvice = () => {
+      let prevNumber = null;
+
+      function print(advice, number) {
+        if (number == prevNumber) {
+          adviceBtn.setAttribute('disabled', 'true');
+          getAdvice(onSuccess, onFail);
+          return;
+        }
+        adviceBtn.removeAttribute('disabled');
+        prevNumber = number;
+        adviceNumber.textContent = number;
+        adviceBody.textContent = advice;
+      }
+
+      return print;
+    }
+
+    const adviceSuccess = printAdvice();
 
     const onSuccess = (advice, number) => {
-      adviceNumber.textContent = number;
-      adviceBody.textContent = advice;
+      adviceSuccess(advice, number);
     }
 
     const onFail = (error) => {
       console.log(error);
     }
-    const getAdvice = async (onSuccess, onFail, cb) => {
+
+    const getAdvice = async (onSuccess, onFail) => {
       adviceNumber.textContent = '. . .';
       adviceBody.textContent = '. . .';
       try {
@@ -223,16 +263,14 @@
         const adviceID = data['slip']['id'];
         onSuccess(advice, adviceID);
       } catch (error) {
+        console.log(error);
         onFail(error.message);
       }
     };
+
     getAdvice(onSuccess, onFail);
 
-    const getNewAdvice = () => {
-      getAdvice(onSuccess, onFail);
-    }
-
-    adviceBtn.addEventListener('click', getNewAdvice);
+    adviceBtn.addEventListener('click', () => getAdvice(onSuccess, onFail));
   })
 </script>
 
